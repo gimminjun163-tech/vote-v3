@@ -21,8 +21,8 @@ export default function Profile({ user, onLogout, onVoteClick }: ProfileProps) {
     loadMyVotes();
   }, [user.id]);
 
-  const loadMyVotes = () => {
-    const allVotes = store.getVotes();
+  const loadMyVotes = async () => {
+    const allVotes = await store.getVotes();
     const userVotes = allVotes.filter(vote => vote.creatorId === user.id);
     setMyVotes(userVotes);
   };
