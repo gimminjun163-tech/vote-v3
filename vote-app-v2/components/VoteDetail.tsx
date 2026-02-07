@@ -52,7 +52,7 @@ export default function VoteDetail({ vote, userId, onBack }: VoteDetailProps) {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (selectedOptions.length === 0) return;
     
     if (vote.selectionType === 'fixed' && selectedOptions.length !== (vote.selectionCount || 1)) {
@@ -60,10 +60,14 @@ export default function VoteDetail({ vote, userId, onBack }: VoteDetailProps) {
       return;
     }
 
-    store.submitVoteResponse(vote.id, userId, selectedOptions, otherText || undefined);
-    setHasVoted(true);
-    loadStats();
-    setShowStats(true);
+    try {
+      await store.submitVoteResponse(vote.id, userId, selectedOptions, otherText || undefined);
+      setHasVoted(true);
+      loadStats();
+      setShowStats(true);
+    } catch (error: any) {
+      alert(error.message || '투표 제출에 실패했습니다.');
+    }
   };
 
   const canSubmit = () => {
