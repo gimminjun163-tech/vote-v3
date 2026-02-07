@@ -32,7 +32,7 @@ export default function CreateVote({ userId, onVoteCreated }: CreateVoteProps) {
     setOptions(newOptions);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!question.trim()) {
@@ -51,31 +51,30 @@ export default function CreateVote({ userId, onVoteCreated }: CreateVoteProps) {
       return;
     }
 
-    const newVote: Vote = {
-      id: Date.now().toString(),
-      creatorId: userId,
-      question: question.trim(),
-      options: filledOptions,
-      hasOther,
-      selectionType,
-      selectionCount: selectionType === 'fixed' ? selectionCount : undefined,
-      deadline: deadline || undefined,
-      createdAt: new Date().toISOString(),
-      responses: [],
-    };
+    try {
+      await store.saveVote({
+        creatorId: userId,
+        question: question.trim(),
+        options: filledOptions,
+        hasOther,
+        selectionType,
+        selectionCount: selectionType === 'fixed' ? selectionCount : undefined,
+        deadline: deadline || undefined,
+      });
+      
+      // 폼 초기화
+      setQuestion('');
+      setOptions(['', '']);
+      setHasOther(false);
+      setSelectionType('fixed');
+      setSelectionCount(1);
+      setDeadline('');
 
-    store.saveVote(newVote);
-    
-    // 폼 초기화
-    setQuestion('');
-    setOptions(['', '']);
-    setHasOther(false);
-    setSelectionType('fixed');
-    setSelectionCount(1);
-    setDeadline('');
-
-    alert('투표가 생성되었습니다!');
-    onVoteCreated();
+      alert('투표가 생성되었습니다!');
+      onVoteCreated();
+    } catch (error: any) {
+      alert(error.message || '투표 생성에 실패했습니다.');
+    }
   };
 
   return (
